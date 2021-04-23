@@ -1,10 +1,39 @@
-from .models import Card, Exchange, Crypto
-from .serializers import CardSerializer, ExchangeSerializer, CryptoSerializer
+from .models import Card, Exchange, Crypto, Currency
+from .serializers import CardSerializer, ExchangeSerializer, CryptoSerializer, CurrencySerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
+
+class CurrencyFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Currency
+        fields = ['id', 'name']
+
+class CurrencyViewSet(viewsets.ModelViewSet):
+    queryset = Currency.objects.all()
+    serializer_class = CurrencySerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_class = CurrencyFilter
+
+    def create(self, request):
+        serializer = CurrencySerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk):
+        instance = self.get_object()
+        serializer = CurrencySerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED) 
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CryptoFilter(filters.FilterSet):
     nameKR = filters.CharFilter(lookup_expr='icontains')
@@ -37,12 +66,11 @@ class CryptoViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ExchangeFilter(filters.FilterSet):
-    nameKR = filters.CharFilter(lookup_expr='icontains')
-    nameEN = filters.CharFilter(lookup_expr='icontains')
+    name = filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = Exchange
-        fields = ['id', 'nameKR', 'nameEN']
+        fields = ['id', 'name']
 
 class ExchangeViewSet(viewsets.ModelViewSet):
     queryset = Exchange.objects.all()
@@ -66,14 +94,28 @@ class ExchangeViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(methods=["PUT"], detail=False, list=True)
+    def add_currency(self, request, pk):
+        instance = self.get_object()
+        for i in request.data['currencies']:
+            currency = Currency.objects.get(id=i)
+            instance.exchanges.add(currency)
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+    @action(methods=["PUT"], detail=False, list=True)
+    def add_currency(self, request, pk):
+        instance = self.get_object()
+        for i in request.data['cryptos']:
+            crypto = Crypto.objects.get(id=i)
+            instance.exchanges.add(crypto)
+        return Response(status=status.HTTP_202_ACCEPTED)
+
 class CardFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
-    exchange1 = filters.CharFilter(field_name='name', lookup_expr='icontains')
-    exchange2 = filters.CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model = Card
-        fields = ['id', 'name', 'exchange1', 'exchange2']
+        fields = ['id', 'name']
 
 class CardViewSet(viewsets.ModelViewSet):
     queryset = Card.objects.all()

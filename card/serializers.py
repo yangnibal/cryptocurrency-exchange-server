@@ -1,15 +1,14 @@
-from .models import Card, Exchange, Crypto
+from .models import Card, Exchange, Crypto, Currency
 from rest_framework import serializers
 
-class ExchangeSerializer(serializers.ModelSerializer):
+class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Exchange
-        fields = ['id', 'nameKR', 'nameEN']
+        model = Currency
+        fields = ['id', 'name']
 
     def update(self, instance, validated_data, partial=True):
-        instance.nameKR = validated_data.get('nameKR', instance.nameKR)
-        instance.nameEN = validated_data.get('nameEN', instance.nameEN)
-
+        instance.name = validated_data.get('name', instance.name)
+        
         instance.save()
         return instance
 
@@ -21,6 +20,21 @@ class CryptoSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data, partial=True):
         instance.nameKR = validated_data.get('nameKR', instance.nameKR)
         instance.nameEN = validated_data.get('nameEN', instance.nameEN)
+
+        instance.save()
+        return instance
+
+class ExchangeSerializer(serializers.ModelSerializer):
+    currencies = CurrencySerializer(many=True)
+    cryptos = CryptoSerializer(many=True)
+    class Meta:
+        model = Exchange
+        fields = ['id', 'name', 'currencies', 'cryptos']
+
+    def update(self, instance, validated_data, partial=True):
+        instance.name = validated_data.get('name', instance.name)
+        instance.currencies = validated_data.get('currencies', instance.currencies)
+        instance.cryptos = validated_data.get('cryptos', instance.cryptos)
 
         instance.save()
         return instance
