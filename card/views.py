@@ -1,10 +1,39 @@
-from .models import Card, Exchange
-from .serializers import CardSerializer, ExchangeSerializer
+from .models import Card, Exchange, Crypto
+from .serializers import CardSerializer, ExchangeSerializer, CryptoSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
+
+class CryptoFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Crypto
+        fields = ['id', 'name']
+
+class ExchangeViewSet(viewsets.ModelViewSet):
+    queryset = Crypto.objects.all()
+    serializer_class = CryptoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_class = CryptoFilter
+
+    def create(self, request):
+        serializer = CryptoSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk):
+        instance = self.get_object()
+        serializer = CryptoSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED) 
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ExchangeFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
