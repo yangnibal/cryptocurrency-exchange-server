@@ -1,30 +1,14 @@
 from .models import Card, Exchange, Crypto
 from rest_framework import serializers
 
-class CardSerializer(serializers.ModelSerializer):
-    owner = serializers.CharField(source='owner.name', read_only=True)
-    exchange1 = serializers.CharField(source='exchange1.name')
-    exchange2 = serializers.CharField(source='exchange2.name')
-    class Meta:
-        model = Card
-        fields = ['id', 'name', 'owner', 'exchange1', 'exchange2']
-
-    def update(self, instance, validated_data, partial=True):
-        instance.name = validated_data.get('name', instance.name)
-        instance.exchange1 = validated_data.get('exchange1', instance.exchange1)
-        instance.exchange2 = validated_data.get('exchange2', instance.exchange2)
-
-        instance.save()
-        return instance
-
-
 class ExchangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exchange
-        fields = ['id', 'name']
+        fields = ['id', 'nameKR', 'nameEN']
 
     def update(self, instance, validated_data, partial=True):
-        instance.name = validated_data.get('name', instance.name)
+        instance.nameKR = validated_data.get('nameKR', instance.nameKR)
+        instance.nameEN = validated_data.get('nameEN', instance.nameEN)
 
         instance.save()
         return instance
@@ -32,10 +16,30 @@ class ExchangeSerializer(serializers.ModelSerializer):
 class CryptoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crypto
-        fields = ['id', 'name']
+        fields = ['id', 'nameKR', 'nameEN']
 
     def update(self, instance, validated_data, partial=True):
-        instance.name = validated_data.gete('name', instance.name)
+        instance.nameKR = validated_data.get('nameKR', instance.nameKR)
+        instance.nameEN = validated_data.get('nameEN', instance.nameEN)
 
         instance.save()
         return instance
+
+class CardSerializer(serializers.ModelSerializer):
+    owner = serializers.CharField(source='owner.name', read_only=True)
+    exchanges = ExchangeSerializer(many=True, read_only=True)
+    crypto = CryptoSerializer(read_only=True)
+
+    class Meta:
+        model = Card
+        fields = ['id', 'name', 'owner', 'exchanges', 'crypto']
+
+    def update(self, instance, validated_data, partial=True):
+        instance.name = validated_data.get('name', instance.name)
+        instance.exchanges = validated_data.get('exchanges', instance.exchanges)
+        instance.crypto = validated_data.get('crypto', instance.crypto)
+
+        instance.save()
+        return instance
+
+
