@@ -18,13 +18,15 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from rest_framework import routers
 from account.views import UserViewSet
+from card.views import CardViewSet
 from django.conf.urls.static import static
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet), 
+router.register(r'cards', CardViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
     path('api-auth', include('rest_framework.urls', namespace='rest_framework')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
