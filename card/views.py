@@ -13,7 +13,7 @@ class CryptoFilter(filters.FilterSet):
         model = Crypto
         fields = ['id', 'name']
 
-class ExchangeViewSet(viewsets.ModelViewSet):
+class CryptoViewSet(viewsets.ModelViewSet):
     queryset = Crypto.objects.all()
     serializer_class = CryptoSerializer
     filter_backends = [DjangoFilterBackend]

@@ -18,12 +18,14 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from rest_framework import routers
 from account.views import UserViewSet
-from card.views import CardViewSet
+from card.views import CardViewSet, CryptoViewSet, ExchangeViewSet
 from django.conf.urls.static import static
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet), 
-router.register(r'cards', CardViewSet)
+router.register(r'cards', CardViewSet),
+router.register(r'cryptos', CryptoViewSet)
+router.register(r'exchanges', ExchangeViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
