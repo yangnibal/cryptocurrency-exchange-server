@@ -1,4 +1,4 @@
-from .models import Card, Exchange, Crypto, Currency
+from .models import Card, Exchange, Crypto, Currency, CardGroup
 from rest_framework import serializers
 
 class CurrencySerializer(serializers.ModelSerializer):
@@ -38,6 +38,11 @@ class ExchangeSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+class CardGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CardGroup
+        fields = ['id', 'name']
 
 class CardSerializer(serializers.ModelSerializer):
     owner = serializers.CharField(source='owner.name', read_only=True)
