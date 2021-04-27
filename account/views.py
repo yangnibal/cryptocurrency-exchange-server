@@ -8,6 +8,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
+from .permissions import IsMineOrReadOnly
 
 class UserFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
@@ -20,6 +21,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend]
     filter_class = UserFilter
+    permission_classes = [IsMineOrReadOnly]
 
     def token_request(request):
         if user_requested_token() and token_request_is_warranted():

@@ -1,5 +1,6 @@
 from .models import Card, Exchange, Crypto, Currency, CardGroup
 from .serializers import CardSerializer, ExchangeSerializer, CryptoSerializer, CurrencySerializer, CardGroupSerializer
+from .permissions import IsCardOwnerOrReadOnly
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -206,6 +207,7 @@ class CardViewSet(viewsets.ModelViewSet):
     serializer_class = CardSerializer
     filter_backends = [DjangoFilterBackend]
     filter_class = CardFilter
+    permission_classes = [IsCardOwnerOrReadOnly]
 
     def create(self, request):
         serializer = CardSerializer(data=request.data)
@@ -225,7 +227,7 @@ class CardViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['GET', 'PUT', 'DELETE'], detail=False, list=True):
+    @action(methods=['GET', 'PUT', 'DELETE'], detail=False, list=True)
     def exchanges(self, request, pk):
         if request.method == 'GET':
             return get_exchanges(request, pk)
@@ -259,7 +261,7 @@ class CardViewSet(viewsets.ModelViewSet):
             instance.exchanges.remove(exchange)
         return Response(status=status.HTTP_200_OK)
 
-    @action(methods=['GET', 'PUT', 'DELETE'], detail=False, list=True):
+    @action(methods=['GET', 'PUT', 'DELETE'], detail=False, list=True)
     def card_groups(self, request, pk):
         if request.method == 'GET':
             return get_card_groups(request, pk)
