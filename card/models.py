@@ -16,9 +16,15 @@ class Exchange(models.Model):
     currencies = models.ManyToManyField(Currency, related_name="currencies")
     cryptos = models.ManyToManyField(Crypto, related_name="cryptos")
 
+class CardGroup(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30, default="")
+
 class Card(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     exchanges = models.ManyToManyField(Exchange, related_name="exchanges")
     crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE, related_name="crypto", null=True)
+    card_groups = models.ManyToManyField(CardGroup, related_name="card_groups")
+
