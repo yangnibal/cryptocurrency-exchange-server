@@ -7,8 +7,7 @@ class Currency(models.Model):
 
 class Crypto(models.Model):
     id = models.AutoField(primary_key=True)
-    nameKR = models.CharField(max_length=30, default="")
-    nameEN = models.CharField(max_length=30, default="")
+    name = models.CharField(max_length=30, default="")
 
 class Exchange(models.Model):
     id = models.AutoField(primary_key=True)

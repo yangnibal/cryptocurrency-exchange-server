@@ -37,12 +37,11 @@ class CurrencyViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CryptoFilter(filters.FilterSet):
-    nameKR = filters.CharFilter(lookup_expr='icontains')
-    nameEN = filters.CharFilter(lookup_expr='icontains')
-
+    name = filters.CharFilter(lookup_expr='icontains')
+    
     class Meta:
         model = Crypto
-        fields = ['id', 'nameKR', 'nameEN']
+        fields = ['id', 'name']
 
 class CryptoViewSet(viewsets.ModelViewSet):
     queryset = Crypto.objects.all()
@@ -95,7 +94,7 @@ class ExchangeViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['GET', 'PUT', 'DELETE'], detail=False, list=True)
+    @action(methods=['GET', 'PUT', 'DELETE'], detail=True, list=False)
     def currencies(self, request, pk):
         if request.method == 'GET':
             return get_currencies(request, pk)
@@ -129,7 +128,7 @@ class ExchangeViewSet(viewsets.ModelViewSet):
             instance.currencies.remove(currency)
         return Response(status=status.HTTP_200_OK)
 
-    @action(methods=['GET', 'PUT', 'DELETE'], detail=False, list=True)
+    @action(methods=['GET', 'PUT', 'DELETE'], detail=True, list=False)
     def cryptos(self, request, pk):
         if request.method == 'GET':
             return get_cryptos(request, pk)
@@ -211,8 +210,9 @@ class CardViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         serializer = CardSerializer(data=request.data)
+        crypto = Crypto.objects.get(id=request.data['crypto'])
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(crypto=crypto)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -227,7 +227,7 @@ class CardViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['GET', 'PUT', 'DELETE'], detail=False, list=True)
+    @action(methods=['GET', 'PUT', 'DELETE'], detail=True, list=False)
     def exchanges(self, request, pk):
         if request.method == 'GET':
             return get_exchanges(request, pk)
@@ -261,7 +261,7 @@ class CardViewSet(viewsets.ModelViewSet):
             instance.exchanges.remove(exchange)
         return Response(status=status.HTTP_200_OK)
 
-    @action(methods=['GET', 'PUT', 'DELETE'], detail=False, list=True)
+    @action(methods=['GET', 'PUT', 'DELETE'], detail=True, list=False)
     def card_groups(self, request, pk):
         if request.method == 'GET':
             return get_card_groups(request, pk)

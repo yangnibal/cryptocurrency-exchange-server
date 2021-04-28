@@ -15,11 +15,10 @@ class CurrencySerializer(serializers.ModelSerializer):
 class CryptoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crypto
-        fields = ['id', 'nameKR', 'nameEN']
+        fields = ['id', 'name']
 
     def update(self, instance, validated_data, partial=True):
-        instance.nameKR = validated_data.get('nameKR', instance.nameKR)
-        instance.nameEN = validated_data.get('nameEN', instance.nameEN)
+        instance.nameKR = validated_data.get('name', instance.name)
 
         instance.save()
         return instance
